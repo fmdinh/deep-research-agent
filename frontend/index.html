@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Research Copilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ HEADER ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Research Copilot</span>
+    </div>
+    <div class="topbar-right">
+      <span class="model-badge">Claude · LangGraph</span>
+      <span class="conn-status" id="conn-status" data-state="idle">
+        <span class="conn-dot"></span>
+        <span class="conn-label">Idle</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- ============ QUERY BAR ============ -->
+  <section class="query-panel" aria-label="Research query">
+    <div class="query-row">
+      <textarea
+        id="query-input"
+        rows="1"
+        placeholder="Ask a research question — e.g. “Compare three open-weight LLMs released this year”"
+        aria-label="Research question"
+      ></textarea>
+      <button id="run-btn" class="btn-primary" type="button">
+        <span class="btn-label">Run research</span>
+        <span class="btn-shortcut">⌘⏎</span>
+      </button>
+    </div>
+
+    <div class="query-meta">
+      <div class="chip-row" id="example-chips" aria-label="Example queries">
+        <button class="chip" data-query="What are the tradeoffs between RAG and long-context LLMs?">RAG vs long-context</button>
+        <button class="chip" data-query="Compare the latest open-weight LLMs on cost and performance">Open-weight LLM comparison</button>
+        <button class="chip" data-query="What caused the most recent major cloud outage and how was it resolved?">Recent cloud outage</button>
+      </div>
+      <label class="rounds-control">
+        <span>Search rounds</span>
+        <select id="iterations">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+    </div>
+
+    <p class="inline-error hidden" id="inline-error" role="alert"></p>
+  </section>
+
+  <!-- ============ MAIN GRID ============ -->
+  <main class="workspace">
+
+    <!-- ---- Pipeline column ---- -->
+    <section class="pipeline-col" aria-label="Agent pipeline progress">
+      <h2 class="col-heading">Pipeline</h2>
+
+      <ol class="stepper" id="stepper">
+        <li class="step" data-stage="plan">
+          <div class="step-marker"><span class="step-icon"></span></div>
+          <div class="step-body">
+            <div class="step-head">
+              <span class="step-title">Plan</span>
+              <span class="step-status">Waiting</span>
+            </div>
+            <p class="step-hint">Break the question into concrete search queries.</p>
+            <div class="step-detail"></div>
+          </div>
+        </li>
+
+        <li class="step" data-stage="search">
+          <div class="step-marker"><span class="step-icon"></span></div>
+          <div class="step-body">
+            <div class="step-head">
+              <span class="step-title">Search</span>
+              <span class="step-status">Waiting</span>
+            </div>
+            <p class="step-hint">Run each query against the web.</p>
+            <div class="step-detail"></div>
+          </div>
+        </li>
+
+        <li class="step" data-stage="evaluate">
+          <div class="step-marker"><span class="step-icon"></span></div>
+          <div class="step-body">
+            <div class="step-head">
+              <span class="step-title">Evaluate</span>
+              <span class="step-status">Waiting</span>
+            </div>
+            <p class="step-hint">Decide if more searching is needed.</p>
+            <div class="step-detail"></div>
+          </div>
+        </li>
+
+        <li class="step" data-stage="synthesize">
+          <div class="step-marker"><span class="step-icon"></span></div>
+          <div class="step-body">
+            <div class="step-head">
+              <span class="step-title">Synthesize</span>
+              <span class="step-status">Waiting</span>
+            </div>
+            <p class="step-hint">Write the final cited report.</p>
+            <div class="step-detail"></div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="run-meta" id="run-meta" hidden>
+        <span id="round-count">Round 0</span>
+        <span id="source-count">0 sources</span>
+      </div>
+    </section>
+
+    <!-- ---- Output column ---- -->
+    <section class="output-col" aria-label="Research output">
+
+      <div class="tabs" role="tablist">
+        <button class="tab active" id="tab-report" role="tab" aria-selected="true">Report</button>
+        <button class="tab" id="tab-sources" role="tab" aria-selected="false">Sources <span id="tab-source-count" class="tab-count">0</span></button>
+      </div>
+
+      <div class="tab-panel" id="panel-report" role="tabpanel">
+        <div class="empty-state" id="report-empty">
+          <span class="empty-glyph">◐</span>
+          <p>Ask a question above. The finished report will appear here, with citations, once the agent has gathered enough sources.</p>
+        </div>
+
+        <div class="report-skeleton hidden" id="report-skeleton" aria-hidden="true">
+          <div class="sk-line sk-title"></div>
+          <div class="sk-line sk-summary"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line short"></div>
+        </div>
+
+        <article class="report hidden" id="report">
+          <div class="report-toolbar">
+            <button class="icon-btn" id="copy-btn" type="button" title="Copy report as Markdown">Copy</button>
+            <button class="icon-btn" id="download-btn" type="button" title="Download as .md">Download</button>
+          </div>
+          <h1 id="report-title"></h1>
+          <p class="report-summary" id="report-summary"></p>
+          <div id="report-sections"></div>
+        </article>
+      </div>
+
+      <div class="tab-panel hidden" id="panel-sources" role="tabpanel">
+        <div class="empty-state" id="sources-empty">
+          <span class="empty-glyph">◐</span>
+          <p>Sources will be listed here as the agent finds them.</p>
+        </div>
+        <ul class="source-grid hidden" id="source-grid"></ul>
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
