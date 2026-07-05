@@ -1,6 +1,6 @@
-# Research Desk — a small multi-step AI research agent
+# AI Deep Research Agent
 
-A portfolio project demonstrating an **agent, not a chatbot**: given a question,
+A portfolio project demonstrating an **agent**: given a question,
 it plans several search queries, runs them against the web *and* any documents
 you've uploaded (PDF/TXT/MD), decides for itself whether it has enough
 information (looping back to search again if not), and then writes a
@@ -14,12 +14,9 @@ HTML/CSS/JS frontend (SSE streaming, no framework/build step) · Docker.
 
 ## Why this instead of a "chat with a PDF" RAG demo
 
-A single-shot retrieve-then-answer chatbot doesn't demonstrate agentic
-behavior — it's one API call with extra steps, and every LLM provider ships
-that feature already. This project instead implements an explicit **state
-machine** (`plan → search → evaluate → [loop | synthesize]`) so it actually
-has to make decisions: how many searches to run, when to stop, and how to
-turn scattered snippets into a structured, source-backed report.
+Most AI “research assistants” are single-shot RAG systems that retrieve context once and generate an answer. While useful, they are essentially one-pass pipelines already commoditized by LLM APIs.
+
+This project instead implements an explicit agentic state machine (`plan → search → evaluate → [loop | synthesize]`) using LangGraph, enabling real multi-step reasoning. The system dynamically decides what to search, when to continue searching, and when enough information has been gathered, before synthesizing a structured, source-backed report.
 
 ## Architecture
 
