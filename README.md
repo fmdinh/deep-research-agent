@@ -10,7 +10,7 @@ structured, cited report — streamed live to a browser as it works.
 TF-IDF local document retrieval (scikit-learn, fully offline) · vanilla
 HTML/CSS/JS frontend (SSE streaming, no framework/build step) · Docker.
 
-![status](https://img.shields.io/badge/status-demo-informational)
+![status]([https://img.shields.io/badge/status-demo-informational](https://github.com/fmdinh/deep-research-agent/blob/main/demo.png])
 
 ## Why this instead of a "chat with a PDF" RAG demo
 
