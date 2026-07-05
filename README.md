@@ -12,7 +12,7 @@ HTML/CSS/JS frontend (SSE streaming, no framework/build step) · Docker.
 
 ![status](./demo.png)
 
-## Why this instead of a "chat with a PDF" RAG demo
+## Why AI Deep Research Agent
 
 Most AI “research assistants” are single-shot RAG systems that retrieve context once and generate an answer. While useful, they are essentially one-pass pipelines already commoditized by LLM APIs.
 
